@@ -1,6 +1,9 @@
-This is an example code, simulating how to run Vite on traditional PHP sites.
+This is my implementation of Vite with PHP.
 
-A bare-minimum setup to serve as example to adapt to other scenarios ([WordPress](https://github.com/wp-bond/boilerplate/tree/master/app/themes/boilerplate), Laravel, etc).
+making use of Vite in a Wordpress theme is as easy as:
+```php
+echo new Vite('main.js', WP_DEBUG, get_template_directory() . '/public/dist/', get_template_directory_uri() . '/public/dist/');
+```
 
 [Vite is amazing](https://github.com/vitejs/vite). Credits go to Evan You [@yyx990803](https://github.com/yyx990803) and the Vue team.
 
