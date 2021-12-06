@@ -40,7 +40,10 @@ The solution is here, adjust the paths and run in terminal:
 ```
 ln -s {path_to_vite}/src/assets {path_to_public_html}/assets
 ```
-
+Another solution would be importing assets in script tag which will consider the server.origin config to generate absolute urls:
+```javascript
+import logoUrl from '../assets/logo.png'
+```
 ### Tips for multiple entries
 
 You may find the need to handle multiple entries, for example, one js/css for the backend and another js/css for frontend. For that, it depends directly on how you want to organize your code.

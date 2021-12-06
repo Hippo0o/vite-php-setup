@@ -2,8 +2,8 @@
   "name": "my-php-project",
   "version": "0.0.0",
   "scripts": {
-    "dev": "APP_ENV=development vite",
-    "build": "vite build"
+    "dev": "vite",
+    "build": "vite build --base='/dist/'"
   },
   "dependencies": {
     "vue": "^3.2.21"

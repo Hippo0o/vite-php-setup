@@ -1,5 +1,6 @@
 <template>
-  <img alt="Vue logo" src="../assets/logo.png" height="40" />
+  <img alt="use import to workaround this" src="../assets/logo.png" height="40" />
+  <img alt="Vue logo" :src="logoUrl" height="40" />
 
   <h1>Vue {{ msg }}</h1>
 
@@ -21,13 +22,14 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive } from "vue";
+import logoUrl from "../assets/logo.png"; // will use absolute url
 
 defineProps({
-  msg: String
-})
+  msg: String,
+});
 
-const state = reactive({ count: 0 })
+const state = reactive({ count: 0 });
 </script>
 
 <style scoped>
