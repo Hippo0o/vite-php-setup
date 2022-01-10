@@ -2,7 +2,12 @@ This is my implementation of Vite with PHP.
 
 making use of Vite in a Wordpress theme is as easy as:
 ```php
-echo new Vite('main.js', WP_DEBUG, get_template_directory() . '/public/dist/', get_template_directory_uri() . '/public/dist/');
+echo new Vite(
+  'main.js', 
+  WP_DEBUG, 
+  get_template_directory() . '/public/dist/', 
+  get_template_directory_uri() . '/public/dist/'
+);
 ```
 
 [Vite is amazing](https://github.com/vitejs/vite). Credits go to Evan You [@yyx990803](https://github.com/yyx990803) and the Vue team.
