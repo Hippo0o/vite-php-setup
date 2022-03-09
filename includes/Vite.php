@@ -91,9 +91,9 @@ class Vite
     // Helpers to locate files
     public function getManifest(): array
     {
-        $content = file_get_contents($this->publicPath . 'manifest.json');
+        $content = @file_get_contents($this->publicPath . 'manifest.json');
 
-        return json_decode($content, true);
+        return json_decode($content, true) ?? [];
     }
 
     public function assetUrl(): string
