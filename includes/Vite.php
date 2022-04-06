@@ -9,14 +9,14 @@ class Vite
     public string $viteServer;
 
     public function __construct(
-      string $entry,
-      bool $isDev = true,
-      string $publicPath = __DIR__ . '/dist/',
-      string $publicUrl = '/dist/',
-      string $viteServer = 'http://localhost:3000/'
+        string $entry,
+        bool $isDev = true,
+        string $publicPath = __DIR__ . '/dist/',
+        string $publicUrl = '/dist/',
+        string $viteServer = 'http://localhost:3000/'
     ) {
         $this->entry = $entry;
-        $this->isDev = $isDev; // should be set depending on the PHP environment to skip the possibly unecessary fallback logic
+        $this->isDev = $isDev;
         $this->publicPath = $publicPath; // basically the filesystem dir the manifest.json is written to
         $this->publicUrl = $publicUrl;
         $this->viteServer = $viteServer;
@@ -58,30 +58,33 @@ class Vite
 
     /*
      * The server running PHP might not have direct access to localhost, so the check is handled client-side.
-     * Checks for the vite dev server being available and loads built assets as fallback.
+     * Checks for the vite dev server being available and loads built assets if necessary.
      */
     protected function devEnv(): string
     {
-        $hash = substr(sha1($this->viteServer), -10);
+        $hash = substr(sha1(uniqid($this->viteServer)), -6);
         return "
           <script id='vite-dev-$hash' type='module' crossorigin src='{$this->viteServer}{$this->entry}'></script>
-          <template id='vite-fallback-$hash'>
+          <template id='vite-build-$hash'>
             {$this->jsTag()}
             {$this->jsPreloadImports()}
             {$this->cssTag()}
           </template>
           <script id='vite-devcheck-$hash'>
-            const fallback = document.getElementById('vite-fallback-$hash');
-            fetch('{$this->viteServer}{$this->entry}')
+            const template_$hash = document.getElementById('vite-build-$hash');
+            const controller_$hash = new AbortController();
+            const timeoutId_$hash = setTimeout(() => controller_$hash.abort(), 1000);
+            fetch('{$this->viteServer}{$this->entry}', { signal: controller_$hash.signal })
               .then((res) => {
                 if(res.status === 404) {
                     throw null;
                 }
-                fallback.remove();
+                clearTimeout(timeoutId_$hash);
+                template_$hash.remove();
               })
               .catch(() => {
-                document.getElementById('vite-dev-$hash').append(document.importNode(fallback.content, true));
-                fallback.remove();
+                document.getElementById('vite-dev-$hash').append(document.importNode(template_$hash.content, true));
+                template_$hash.remove();
               });
             document.getElementById('vite-devcheck-$hash').remove();
           </script>
@@ -101,8 +104,8 @@ class Vite
         $manifest = $this->getManifest();
 
         return isset($manifest[$this->entry])
-          ? $this->publicUrl . $manifest[$this->entry]['file']
-          : '';
+            ? $this->publicUrl . $manifest[$this->entry]['file']
+            : '';
     }
 
     public function importsUrls(): array
@@ -131,3 +134,4 @@ class Vite
         return $urls;
     }
 }
+
