@@ -33,25 +33,25 @@ class Vite
 
 
     // Helpers to print tags
-    public function jsTag(): string
+    public function jsTag(string $options = '' /* e.g. 'defer' or 'async' */): string
     {
-        return "<script type='module' crossorigin src='{$this->assetUrl()}'></script>";
+        return "<script type='module' $options src='{$this->assetUrl()}'></script>";
     }
 
-    public function jsPreloadImports(): string
+    public function jsPreloadImports(string $options = ''): string
     {
         $html = '';
         foreach ($this->importsUrls() as $url) {
-            $html .= "<link rel='modulepreload' href='$url'>";
+            $html .= "<link rel='modulepreload' $options href='$url'>";
         }
         return $html;
     }
 
-    public function cssTag(): string
+    public function cssTag(string $options = ''): string
     {
         $html = '';
         foreach ($this->cssUrls() as $url) {
-            $html .= "<link rel='stylesheet' href='$url'>";
+            $html .= "<link rel='stylesheet' $options href='$url'>";
         }
         return $html;
     }
@@ -64,30 +64,23 @@ class Vite
     {
         $hash = substr(sha1(uniqid($this->viteServer)), -6);
         return "
-          <script id='vite-dev-$hash' type='module' crossorigin src='{$this->viteServer}{$this->entry}'></script>
           <template id='vite-build-$hash'>
             {$this->jsTag()}
             {$this->jsPreloadImports()}
             {$this->cssTag()}
           </template>
           <script id='vite-devcheck-$hash'>
-            const template_$hash = document.getElementById('vite-build-$hash');
-            const controller_$hash = new AbortController();
-            const timeoutId_$hash = setTimeout(() => controller_$hash.abort(), 1000);
-            fetch('{$this->viteServer}{$this->entry}', { signal: controller_$hash.signal })
-              .then((res) => {
-                if(res.status === 404) {
-                    throw null;
+            let loaded_$hash = false;
+            setTimeout(()=> {
+                const template_$hash = document.getElementById('vite-build-$hash');
+                if(loaded_$hash == false) {
+                    document.getElementById('vite-dev-$hash').append(document.importNode(template_$hash.content, true));
                 }
-                clearTimeout(timeoutId_$hash);
-                template_$hash.remove();
-              })
-              .catch(() => {
-                document.getElementById('vite-dev-$hash').append(document.importNode(template_$hash.content, true));
-                template_$hash.remove();
-              });
+              template_$hash.remove();
+            }, 1000);
             document.getElementById('vite-devcheck-$hash').remove();
           </script>
+          <script id='vite-dev-$hash' type='module' onload='loaded_$hash = true' async crossorigin src='{$this->viteServer}{$this->entry}'></script>
         ";
     }
 
@@ -134,4 +127,3 @@ class Vite
         return $urls;
     }
 }
-
